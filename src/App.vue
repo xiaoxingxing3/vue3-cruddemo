@@ -6,8 +6,8 @@
     </div>
     <!--query-box区域-->
     <div class="query-box">
-      <el-input v-model="queryInput" placeholder="请搜索姓名"/>
-      <el-button type="primary">增加</el-button>
+      <el-input v-model="queryInput" class="queryinput" placeholder="请搜索姓名"/>
+      <el-button type="primary" @click="handleAdd">增加</el-button>
     </div>
     <div class="data-box">
       <!--  数据区域-->
@@ -16,26 +16,47 @@
           :data="tableData"
           @selection-change="handleSelectionChange"
           border>
-        <el-table-column type="selection" width="55" />
-        <el-table-column fixed prop="date" label="Date" width="150"/>
-        <el-table-column prop="name" label="Name" width="120"/>
-        <el-table-column prop="state" label="State" width="120"/>
-        <el-table-column prop="city" label="City" width="120"/>
-        <el-table-column prop="address" label="Address" width="600"/>
-        <el-table-column prop="zip" label="Zip" width="120"/>
-        <el-table-column label="Operations" width="120">
-          <template #default>
-            <el-button link type="primary" size="small" @click="handleRowClick"
-            >Detail
-            </el-button
-            >
-            <el-button link type="primary" size="small">Edit</el-button>
+        <el-table-column fixed type="selection" width="55" />
+        <el-table-column prop="name" label="姓名" width="80"/>
+        <el-table-column prop="tel" label="电话" width="120"/>
+        <el-table-column prop="email" label="邮箱" width="120"/>
+        <el-table-column prop="state" label="状态" width="120"/>
+        <el-table-column prop="address" label="地址" width="300"/>
+        <el-table-column fixed="right" label="Operations" width="120">
+          <template #default="scope">
+            <el-button link type="primary" size="small" @click="handleRowDel(scope.row)" style="color:#F56C6C">删除
+            </el-button>
+            <el-button link type="primary" size="small">编辑</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
+<!--弹窗-->
+    <el-dialog v-model="dialogFormVisible" title="新增">
+      <el-form :model="tableForm">
+        <el-form-item label="姓名" :label-width="formLabelWidth">
+          <el-input v-model="tableForm.name" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="电话" :label-width="formLabelWidth">
+          <el-input v-model="tableForm.tel" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="邮箱" :label-width="formLabelWidth">
+          <el-input v-model="tableForm.email" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="状态" :label-width="formLabelWidth">
+          <el-input v-model="tableForm.state" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="地址" :label-width="formLabelWidth">
+          <el-input v-model="tableForm.address" autocomplete="off" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+      <span class="dialog-footer">
+        <el-button type="primary" @click="dialogconfirm">确认</el-button>
+      </span>
+      </template>
+    </el-dialog>
   </div>
-
 </template>
 
 
@@ -43,62 +64,79 @@
 import {ref} from 'vue'
 
 /*数据*/
-let queryInput = ref('')
-let tableData = ref([
+let queryInput = $ref('')
+let tableData = $ref([
   {
-    date: '2016-05-03',
+    id:"1",
     name: 'Tom',
-    state: 'California',
-    city: 'Los Angeles',
-    address: 'No. 189, Grove St, Los Angeles',
-    zip: 'CA 90036',
-    tag: 'Home',
+    tel: 'CA 90036',
+    email:"1123@qq.com",
+    state: '离职',
+    address: 'No. 189, Grove St, Los Angeles'
   },
   {
-    date: '2016-05-02',
+    id:"2",
     name: 'Tom',
-    state: 'California',
-    city: 'Los Angeles',
-    address: 'No. 189, Grove St, Los Angeles',
-    zip: 'CA 90036',
-    tag: 'Office',
+    tel: 'CA 90036',
+    email:"1123@qq.com",
+    state: '在职',
+    address: 'No. 189, Grove St, Los Angeles'
   },
   {
-    date: '2016-05-04',
+    id:"3",
     name: 'Tom',
-    state: 'California',
-    city: 'Los Angeles',
-    address: 'No. 189, Grove St, Los Angeles',
-    zip: 'CA 90036',
-    tag: 'Home',
-  },
-  {
-    date: '2016-05-01',
-    name: 'Tom',
-    state: 'California',
-    city: 'Los Angeles',
-    address: 'No. 189, Grove St, Los Angeles',
-    zip: 'CA 90036',
-    tag: 'Office',
+    tel: 'CA 90036',
+    email:"1123@qq.com",
+    state: '离职',
+    address: 'No. 189, Grove St, Los Angeles'
   },
 ])
-let multipleSelection = ref([])
+let multipleSelection = $ref([])
+let dialogFormVisible = $ref(false)
+let tableForm = $ref({
+  name:"张三",
+  email:"1123@qq.com",
+  tel:"12345678910",
+  state:"在职",
+  address:"江苏南京"
+})
 
 /*方法*/
-let handleRowClick = () => {
-  console.log('click')
+const handleRowDel = ({id}) => {
+  //1.通过id 获取到当前数据的索引值
+  let index = tableData.findIndex(item=>item.id===id)
+
+  //2.删除当前index值对应在tableData中的数据
+  tableData.splice(index, 1)
+
 }
 const handleSelectionChange = (val) => {
   multipleSelection.value = val
   console.log(val);
 }
+const handleAdd = () =>{
+  dialogFormVisible = true
+  tableForm = {}
+}
+const dialogconfirm = ()=>{
+  dialogFormVisible = false
+  //1.获取数据
+
+  //2.添加到tableData
+  tableData.push({
+        id: (tableData.length + 1).toString(),
+        ...tableForm,
+      }
+  )
+}
+
 
 </script>
 
 <style scoped>
 
 .table-box {
-  margin: 0 auto;
+  margin: 200px auto;
   width: 600px;
   text-align: center;
 }
@@ -107,13 +145,12 @@ const handleSelectionChange = (val) => {
   display: flex;
   justify-content: space-between;
 }
+.queryinput{
+  width: 200px;
+}
 
 .data-box {
   margin-top: 20px;
-}
-
-.el-input {
-  width: 200px;
 }
 
 </style>
