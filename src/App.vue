@@ -7,7 +7,10 @@
     <!--query-box区域-->
     <div class="query-box">
       <el-input v-model="queryInput" class="queryinput" placeholder="请搜索姓名"/>
-      <el-button type="primary" @click="handleAdd">增加</el-button>
+      <div class="but-list">
+        <el-button type="primary" @click="handleAdd">增加</el-button>
+        <el-button type="danger" @click="handleDelList" v-if="multipleSelection.length>0">删除多选</el-button>
+      </div>
     </div>
     <div class="data-box">
       <!--  数据区域-->
@@ -22,7 +25,7 @@
         <el-table-column prop="email" label="邮箱" width="120"/>
         <el-table-column prop="state" label="状态" width="120"/>
         <el-table-column prop="address" label="地址" width="300"/>
-        <el-table-column fixed="right" label="Operations" width="120">
+        <el-table-column fixed="right" label="操作" width="120">
           <template #default="scope">
             <el-button link type="primary" size="small" @click="handleRowDel(scope.row)" style="color:#F56C6C">删除
             </el-button>
@@ -102,6 +105,7 @@ let tableForm = $ref({
 })
 
 /*方法*/
+//删除一条
 const handleRowDel = ({id}) => {
   //1.通过id 获取到当前数据的索引值
   let index = tableData.findIndex(item=>item.id===id)
@@ -110,14 +114,32 @@ const handleRowDel = ({id}) => {
   tableData.splice(index, 1)
 
 }
-const handleSelectionChange = (val) => {
-  multipleSelection.value = val
-  console.log(val);
+//删除多选
+const handleDelList = ()=>{
+  multipleSelection.forEach(id=>{
+    handleRowDel({id})
+  })
+  multipleSelection = []
 }
+
+//选中
+const handleSelectionChange = (val) => {
+  // multipleSelection = val
+  // console.log(val);
+  //先清空之前选中的
+  multipleSelection = []
+  //然后再将id push进去
+  val.forEach(item=>{
+    multipleSelection.push(item.id)
+  })
+  // console.log(multipleSelection);
+}
+//新增
 const handleAdd = () =>{
   dialogFormVisible = true
   tableForm = {}
 }
+//确认
 const dialogconfirm = ()=>{
   dialogFormVisible = false
   //1.获取数据
