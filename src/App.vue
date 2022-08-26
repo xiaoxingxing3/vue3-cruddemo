@@ -29,13 +29,13 @@
           <template #default="scope">
             <el-button link type="primary" size="small" @click="handleRowDel(scope.row)" style="color:#F56C6C">删除
             </el-button>
-            <el-button link type="primary" size="small">编辑</el-button>
+            <el-button link type="primary" size="small" @click="handleEdit(scope.row)">编辑</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
 <!--弹窗-->
-    <el-dialog v-model="dialogFormVisible" title="新增">
+    <el-dialog v-model="dialogFormVisible" :title="dialogType === 'add'? '新增':'编辑'">
       <el-form :model="tableForm">
         <el-form-item label="姓名" :label-width="formLabelWidth">
           <el-input v-model="tableForm.name" autocomplete="off" />
@@ -68,27 +68,27 @@ import {ref} from 'vue'
 
 /*数据*/
 let queryInput = $ref('')
-let tableData = $ref([
+let tableData = $ref( [
   {
     id:"1",
-    name: 'Tom',
-    tel: 'CA 90036',
+    name: 'Tom1',
+    tel: '13672863701',
     email:"1123@qq.com",
     state: '离职',
     address: 'No. 189, Grove St, Los Angeles'
   },
   {
     id:"2",
-    name: 'Tom',
-    tel: 'CA 90036',
+    name: 'Tom2',
+    tel: '13672863702',
     email:"1123@qq.com",
     state: '在职',
     address: 'No. 189, Grove St, Los Angeles'
   },
   {
     id:"3",
-    name: 'Tom',
-    tel: 'CA 90036',
+    name: 'Tom3',
+    tel: '13672863703',
     email:"1123@qq.com",
     state: '离职',
     address: 'No. 189, Grove St, Los Angeles'
@@ -103,6 +103,7 @@ let tableForm = $ref({
   state:"在职",
   address:"江苏南京"
 })
+let dialogType = $ref('edit')
 
 /*方法*/
 //删除一条
@@ -122,6 +123,13 @@ const handleDelList = ()=>{
   multipleSelection = []
 }
 
+//编辑
+const handleEdit = (row)=>{
+  dialogFormVisible = true
+  dialogType = 'edit'
+  tableForm = row
+}
+
 //选中
 const handleSelectionChange = (val) => {
   // multipleSelection = val
@@ -138,18 +146,31 @@ const handleSelectionChange = (val) => {
 const handleAdd = () =>{
   dialogFormVisible = true
   tableForm = {}
+  dialogType = 'add'
 }
 //确认
 const dialogconfirm = ()=>{
   dialogFormVisible = false
-  //1.获取数据
 
-  //2.添加到tableData
-  tableData.push({
-        id: (tableData.length + 1).toString(),
-        ...tableForm,
-      }
-  )
+  // 判断是新增还是编辑
+  if(dialogType === 'add'){
+    //1.获取数据
+    //2.添加到tableData
+    tableData.push({
+          id: (tableData.length + 1).toString(),
+          ...tableForm,
+        }
+    )
+  }else {
+    //1. 获取当前数据的索引值
+    let index = tableData.findIndex(item=>item.id === tableForm.id)
+
+    //2. 替换当前索引值的数据
+    tableData[index] = tableForm
+  }
+
+
+
 }
 
 
